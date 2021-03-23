@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:my_stock/src/pages/login/background_theme.dart';
+import 'package:my_stock/src/view_models/sso_viewmodel.dart';
 
 class LoginPage extends StatelessWidget {
   @override
@@ -76,18 +78,27 @@ class LoginPage extends StatelessWidget {
                         child: Text(
                           'Login',
                           style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.red
-                          ),
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white),
                         ),
                       ),
                     ),
                   ],
                 ),
-                Text('login button'),
-                Text('forgot password'),
-                Text('sso'),
+                _buildTextButton(
+                  'forgot password?',
+                  onPressed: () {
+                    //todo
+                  },
+                ),
+                SSOButton(),
+                _buildTextButton(
+                  'register',
+                  onPressed: () {
+                    //todo
+                  },
+                ),
               ],
             ),
           ),
@@ -101,10 +112,10 @@ class LoginPage extends StatelessWidget {
     final gradientEnd = BackGroundTheme().gradientEnd;
 
     final boxShadowItem = (Color color) => BoxShadow(
-      color: color,
-      offset: Offset(1.0, 6.0),
-      blurRadius: 20.0,
-    );
+          color: color,
+          offset: Offset(1.0, 6.0),
+          blurRadius: 20.0,
+        );
 
     return BoxDecoration(
       borderRadius: BorderRadius.all(Radius.circular(5.0)),
@@ -120,6 +131,52 @@ class LoginPage extends StatelessWidget {
         begin: const FractionalOffset(0, 0),
         end: const FractionalOffset(1.0, 1.0),
         stops: [0.0, 1.0],
+      ),
+    );
+  }
+
+  Container _buildTextButton(String text, {VoidCallback onPressed}) =>
+      Container(
+        margin: EdgeInsets.symmetric(vertical: 12),
+        child: SizedBox(
+          width: double.infinity,
+          child: TextButton(
+            onPressed: onPressed,
+            child: Text(
+              text,
+              style: TextStyle(color: Colors.white70),
+            ),
+          ),
+        ),
+      );
+}
+
+class SSOButton extends StatelessWidget {
+  const SSOButton({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 22,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: SSOViewModel()
+            .item
+            .map(
+              (item) => FloatingActionButton(
+                onPressed: item.onPressed,
+                child: FaIcon(
+                  item.icon,
+                  color: item.iconColor,
+                ),
+                backgroundColor: item.backgroundColor,
+              ),
+            )
+            .toList(),
       ),
     );
   }

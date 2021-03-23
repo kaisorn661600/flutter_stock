@@ -13,7 +13,6 @@ class BackGroundTheme{
 
   static const gradient = LinearGradient(
       colors: [
-        //Colors.white,
         _gradientStart,
         _gradientEnd,
       ],

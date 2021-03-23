@@ -4,6 +4,9 @@ import 'package:my_stock/src/pages/login/background_theme.dart';
 import 'package:my_stock/src/view_models/sso_viewmodel.dart';
 
 class LoginPage extends StatelessWidget {
+  final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -43,6 +46,8 @@ class LoginPage extends StatelessWidget {
                         child: Column(
                           children: [
                             TextField(
+                              controller: _usernameController,
+                              keyboardType: TextInputType.emailAddress,
                               decoration: InputDecoration(
                                 hintText: "exmaple@gmail.com",
                                 labelText: "Username",
@@ -56,6 +61,7 @@ class LoginPage extends StatelessWidget {
                               endIndent: 22,
                             ),
                             TextField(
+                              controller: _passwordController,
                               decoration: InputDecoration(
                                 labelText: "Password",
                                 icon: Icon(Icons.lock),
@@ -70,9 +76,19 @@ class LoginPage extends StatelessWidget {
                     Container(
                       decoration: _boxDecoration(),
                       width: 280,
-                      height: 50,
+                      height: 52,
                       child: TextButton(
                         onPressed: () {
+                          final username = _usernameController.text;
+                          final password = _passwordController.text;
+
+                          if (username == "admin@gmail.com" &&
+                              password == "12345678") {
+                            print('login success');
+                          } else {
+                            print('username or password incorrect!');
+                          }
+
                           print('login click!!!');
                         },
                         child: Text(

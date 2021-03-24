@@ -1,6 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.codemobiles.my_stock">
    <application
+       android:requestLegacyExternalStorage="true"
         android:label="my_stock"
         android:icon="@mipmap/ic_launcher">
         <activity

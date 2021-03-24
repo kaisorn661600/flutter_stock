@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:my_stock/src/configs/app_route.dart';
+import 'package:my_stock/src/constants/app_setting.dart';
+import 'package:my_stock/src/constants/asset.dart';
 import 'package:my_stock/src/pages/login/background_theme.dart';
 import 'package:my_stock/src/view_models/sso_viewmodel.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatelessWidget {
   final _usernameController = TextEditingController();
@@ -25,7 +28,7 @@ class LoginPage extends StatelessWidget {
               children: [
                 SizedBox(height: 100),
                 Image.asset(
-                  'assets/images/logo.png',
+                  Asset.logoImage,
                   width: 350,
                 ),
                 Stack(
@@ -79,26 +82,34 @@ class LoginPage extends StatelessWidget {
                       width: 280,
                       height: 52,
                       child: TextButton(
-                        onPressed: () {
+                        onPressed: () async {
                           final username = _usernameController.text;
                           final password = _passwordController.text;
 
                           if (username == "admin@gmail.com" &&
                               password == "12345678") {
+                            SharedPreferences prefs =
+                                await SharedPreferences.getInstance();
 
-                            Navigator.pushReplacementNamed(context, AppRoute.homeRoute);
+                            var token = 'jasdasdqwkd84';
+                            prefs.setString(AppSetting.tokenSetting, token);
+                            prefs.setString(AppSetting.usernameSetting, token);
 
+                            Navigator.pushReplacementNamed(
+                              context,
+                              AppRoute.homeRoute,
+                            );
                           } else {
                             print('username or password incorrect!');
                           }
-
                         },
                         child: Text(
                           'Login',
                           style: TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white),
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ),

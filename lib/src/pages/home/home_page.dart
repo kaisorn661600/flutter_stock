@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:my_stock/src/configs/app_route.dart';
+import 'package:my_stock/src/constants/app_setting.dart';
+import 'package:my_stock/src/constants/asset.dart';
+import 'package:my_stock/src/models/product_response.dart';
 import 'package:my_stock/src/pages/login/background_theme.dart';
+import 'package:my_stock/src/services/network.dart';
 import 'package:my_stock/src/view_models/menu_viewmodel.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatelessWidget {
   @override
@@ -10,14 +15,39 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       drawer: CommonDrawer(),
       appBar: AppBar(
-        title: Text("Home page"),
+        title: Text("home page"),
       ),
-      body: GridView.builder(
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-        ),
-        itemBuilder: (context, index) => ShopListItem(220),
-        itemCount: 100,
+      body: FutureBuilder<List<ProductResponse>>(
+        future: NetworkService().productAll(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+
+          if (snapshot.hasError) {
+            return Text(
+              snapshot.error.toString(),
+            );
+          }
+
+          return GridView.builder(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              childAspectRatio: 0.8,
+            ),
+            itemBuilder: (context, index) => LayoutBuilder(
+              builder: (context, constraint) => ShopListItem(
+                constraint.maxHeight,
+                press: () {
+                  print('click!!!');
+                },
+              ),
+            ),
+            itemCount: snapshot.data.length,
+          );
+        },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -41,11 +71,12 @@ class CommonDrawer extends StatelessWidget {
       child: Column(
         children: [
           UserAccountsDrawerHeader(
-            accountName: Text('kaisorn.dev'),
-            accountEmail: Text('kaisorn@gmail.com'),
+            accountName: Text('Kaisorn .dev'),
+            accountEmail: Text('kaisorn661600@gmail.com'),
             currentAccountPicture: CircleAvatar(
               backgroundImage: NetworkImage(
-                  'https://avatars.githubusercontent.com/u/50194756?s=460&u=c5a19b9b2fb0fff0f46bcdb96a36eb81d1e1accf&v=4'),
+                'https://avatars.githubusercontent.com/u/50194756?s=460&u=c5a19b9b2fb0fff0f46bcdb96a36eb81d1e1accf&v=4',
+              ),
             ),
             decoration: BoxDecoration(
               gradient: BackGroundTheme.gradient,
@@ -53,15 +84,26 @@ class CommonDrawer extends StatelessWidget {
           ),
           ...MenuViewModel()
               .items
-              .map((e) => ListTile(
-                    onTap: e.onTap(context),
-                    leading: Icon(e.icon),
-                    title: Text('Logout'),
-                  ))
+              .map(
+                (e) => ListTile(
+                  onTap: () {
+                    e.onTap(context);
+                  },
+                  leading: Icon(
+                    e.icon,
+                    color: e.iconColor,
+                  ),
+                  title: Text(e.title),
+                ),
+              )
               .toList(),
           Spacer(),
           ListTile(
-            onTap: () {
+            onTap: () async {
+              SharedPreferences prefs = await SharedPreferences.getInstance();
+              //prefs.clear();
+              prefs.remove(AppSetting.tokenSetting);
+
               Navigator.pushNamedAndRemoveUntil(
                   context, AppRoute.loginRoute, (route) => false);
             },
@@ -105,7 +147,7 @@ class ShopListItem extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Text(
-              'xxx',
+              'MacBook M1',
               overflow: TextOverflow.ellipsis,
               maxLines: 2,
             ),
@@ -113,13 +155,13 @@ class ShopListItem extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 Text(
-                  '\$ 599',
+                  '\$ 30,000',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 Text(
-                  '10 pieces',
+                  '1,112 pieces',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: Colors.deepOrangeAccent,
@@ -132,8 +174,8 @@ class ShopListItem extends StatelessWidget {
       );
 
   Stack _buildImage() {
-    final height = maxHeight - 75;
-    final productImage = 'https://cu.lnwfile.com/f3vhiv.jpg';
+    final height = maxHeight * 0.78;
+    final productImage = '';
     return Stack(
       children: [
         productImage != null && productImage.isNotEmpty
@@ -144,42 +186,41 @@ class ShopListItem extends StatelessWidget {
                 fit: BoxFit.cover,
               )
             : Image.asset(
-                'xxx',
+                Asset.noPhotoImage,
                 height: height,
                 width: double.infinity,
               ),
-        1 > 0
-            ? SizedBox()
-            : Positioned(
-                top: 1,
-                right: 1,
-                child: Card(
-                  color: Colors.white70,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
+        if (0 <= 0)
+          Positioned(
+            top: 1,
+            right: 1,
+            child: Card(
+              color: Colors.white70,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 8,
+                  vertical: 4,
+                ),
+                child: Row(
+                  children: <Widget>[
+                    Icon(
+                      FontAwesomeIcons.box,
+                      size: 15.0,
+                      color: Colors.black,
                     ),
-                    child: Row(
-                      children: <Widget>[
-                        Icon(
-                          FontAwesomeIcons.box,
-                          size: 15.0,
-                          color: Colors.black,
-                        ),
-                        SizedBox(width: 4),
-                        Text(
-                          'out of stock',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
+                    SizedBox(width: 4),
+                    Text(
+                      'out of stock',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
+                  ],
                 ),
               ),
+            ),
+          ),
       ],
     );
   }

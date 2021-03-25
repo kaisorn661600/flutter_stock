@@ -23,6 +23,7 @@ class _HomePageState extends State<HomePage> {
       drawer: CommonDrawer(),
       appBar: AppBar(
         title: Text("home page"),
+        centerTitle: false,
         backgroundColor: Colors.red,
       ),
       body: Center(

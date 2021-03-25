@@ -1,6 +1,9 @@
 import 'dart:io';
 
+import 'package:flushbar/flushbar.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:my_stock/src/models/product_response.dart';
 import 'package:my_stock/src/services/network.dart';
@@ -29,6 +32,14 @@ class _ManagementPageState extends State<ManagementPage> {
 
   @override
   Widget build(BuildContext context) {
+
+    Object arguments = ModalRoute.of(context).settings.arguments;
+
+    if(arguments is ProductResponse){
+      _product = arguments;
+      _editMode = true;
+    }
+
     return Scaffold(
       appBar: _buildAppBar(),
       body: SingleChildScrollView(
@@ -77,6 +88,7 @@ class _ManagementPageState extends State<ManagementPage> {
       );
 
   TextFormField _buildNameInput() => TextFormField(
+    initialValue: _product.name ?? "",
         decoration: inputStyle(label: "name"),
         onSaved: (String value) {
           _product.name = value;
@@ -84,6 +96,7 @@ class _ManagementPageState extends State<ManagementPage> {
       );
 
   TextFormField _buildPriceInput() => TextFormField(
+    initialValue: _product.price == null ? "0" : _product.price.toString(),
         decoration: inputStyle(label: "price"),
         keyboardType: TextInputType.number,
         onSaved: (String value) {
@@ -92,6 +105,7 @@ class _ManagementPageState extends State<ManagementPage> {
       );
 
   TextFormField _buildStockInput() => TextFormField(
+    initialValue: _product.stock  == null ? "0" : _product.stock.toString(),
         decoration: inputStyle(label: "stock"),
         keyboardType: TextInputType.number,
         onSaved: (String value) {
@@ -104,13 +118,23 @@ class _ManagementPageState extends State<ManagementPage> {
         title: Text(_editMode ? 'Edit Product' : 'Add Product'),
         actions: [
           TextButton(
-            onPressed: () {
+            onPressed: () async {
               _form.currentState.save();
-              FocusScope.of(context).requestFocus(FocusNode()); ///no focus input field close keyboard
+              FocusScope.of(context).requestFocus(FocusNode());
+
+              ///no focus input field close keyboard
               if (_editMode) {
                 //todo
               } else {
-                NetworkService().addProduct(null, _product);
+                try {
+                  final message =
+                      await NetworkService().addProduct(null, _product);
+                  //showAlertBar(message);
+                  Navigator.pop(context);
+                } catch (ex) {
+                  showAlertBar(ex.toString(),
+                      color: Colors.red, icon: FontAwesomeIcons.cross);
+                }
               }
             },
             child: Text(
@@ -120,4 +144,22 @@ class _ManagementPageState extends State<ManagementPage> {
           )
         ],
       );
+
+  void showAlertBar(
+    String message, {
+    IconData icon = FontAwesomeIcons.checkCircle,
+    MaterialColor color = Colors.green,
+  }) {
+    Flushbar(
+      message: message,
+      icon: Icon(
+        icon,
+        size: 28.0,
+        color: color,
+      ),
+      flushbarPosition: FlushbarPosition.TOP,
+      duration: Duration(seconds: 3),
+      flushbarStyle: FlushbarStyle.GROUNDED,
+    )..show(context);
+  }
 }

@@ -46,9 +46,7 @@ class _HomePageState extends State<HomePage> {
 
             return RefreshIndicator(
               onRefresh: () async {
-                setState(() {
-
-                });
+                setState(() {});
               },
               child: GridView.builder(
                 padding: EdgeInsets.all(4),
@@ -63,7 +61,8 @@ class _HomePageState extends State<HomePage> {
                     constraint.maxHeight,
                     productList[index],
                     press: () {
-                      print('click!!!');
+                      Navigator.pushNamed(context, AppRoute.managementRoute,
+                          arguments: productList[index]);
                     },
                   ),
                 ),
@@ -74,11 +73,12 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.pushNamed(
+        onPressed: () async {
+          await Navigator.pushNamed(
             context,
             AppRoute.managementRoute,
           );
+          setState(() {});
         },
         tooltip: 'Increment',
         child: Icon(Icons.add),

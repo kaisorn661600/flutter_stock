@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui';
 import 'package:flutter/material.dart';
@@ -6,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:my_stock/src/constants/asset.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class GoogleMapPage extends StatefulWidget {
   @override
@@ -124,10 +126,10 @@ class GoogleMapPageState extends State<GoogleMapPage> {
               title: title,
               snippet: snippet,
               onTap: () {
-                // _launchMaps(
-                //   position.latitude,
-                //   position.longitude,
-                // );
+                _launchMaps(
+                  position.latitude,
+                  position.longitude,
+                );
               },
             )
           : null,
@@ -236,5 +238,25 @@ class GoogleMapPageState extends State<GoogleMapPage> {
     });
   }
 
+
+  void _launchMaps(double lat, double lng) async {
+
+    //canLaunch("urlString"); //Check web
+    //launch("ddd");//Open web
+
+    final parameter = '?z=16&q=$lat,$lng';
+
+    if (Platform.isAndroid) {
+      await launch('https://maps.google.com' + parameter);
+      return;
+    }
+
+    final googleMapSchemeIOS = 'comgooglemaps://';
+    if (await canLaunch(googleMapSchemeIOS)) {
+      launch(googleMapSchemeIOS + parameter);
+    } else {
+      launch('https://maps.apple.com' + parameter);
+    }
+  }
 
 }
